@@ -1,0 +1,16 @@
+Rule Set	Rules					
+						
+Import	com.app.tracker.utils.StatusEnum; com.app.tracker.models.Disease;					
+						
+Notes	Decision table for diseases rules					
+						
+						
+						
+Rule Table for Different types of diseases						
+Name	Condition					
+	$disease : Disease					
+						
+	$disease.statusEnum == $param					
+Disease	statusEnum					
+Severe Disease	StatusEnum.SEVERE	"System.out.println(""Hello, from the files <<< Severe disease "" );"				
+Normal Disease	StatusEnum.NORMAL	"System.out.println(""Hello, from the files <<< Normal disease "" );"				

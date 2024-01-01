@@ -1,0 +1,14 @@
+package rules;
+
+import com.app.tracker.models.TestClaim;
+
+
+rule "Test under the same umbrella"
+dialect "mvel"
+salience 10
+
+when
+   $testClaim : TestClaim()
+then
+    System.out.println("Test Rule (Printing test claim)" + $testClaim.claimName);
+end

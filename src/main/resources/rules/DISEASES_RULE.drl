@@ -1,0 +1,19 @@
+package rules;
+
+import com.app.tracker.models.Disease;
+import com.app.tracker.utils.StatusEnum;
+
+
+rule "Speak about the diseases"
+dialect "mvel"
+salience 100
+
+when
+    // filter incurable diseases only
+    $inCurableDisease : Disease( this.isIncurable(), statusEnum == StatusEnum.SEVERE )
+    // $curableDisease : Disease( this.isIncurable() == false )
+then
+    // Java Code
+     System.out.println("Disease " + $inCurableDisease.name + " is found in a list of incurable diseases.");
+    // System.out.println("Disease " + $curableDisease.name + " is found in a list of curable diseases.\n");
+end

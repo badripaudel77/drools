@@ -1,0 +1,150 @@
+package rules; // it is advisable to have some correspondence between package and folder.
+
+/*
+ * Official youtube intro (KIE youtube channel) : https://www.youtube.com/watch?v=IdS7dgSj3ds
+ * If you wanna test, uncomment and try running and analyze how this is working.
+ */
+import com.app.tracker.models.CustomerUser;
+import com.app.tracker.models.TestClaim;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.time.LocalDateTime; // Import the LocalDateTime class
+import java.time.format.DateTimeFormatter; // Import the DateTimeFormatter class
+
+
+// Import static function (denoted by either static or function keyword) of the class CustomerUserUtil
+// import static com.app.tracker.utils.CustomerUserUtil.compareDate; // same as line below (i.e use either function or static)
+import function com.app.tracker.utils.CustomerUserUtil.compareDate;
+
+global java.util.List myGlobalShoppingList; // make variable available globally
+
+
+rule "Allow Customer User to use application"
+dialect "mvel" // define the dialect (either mvel or java)
+salience 10 // higher the salience, higher the priority
+
+when
+    // $customerUser : CustomerUser(status == "VALID") // Match the CustomerUser with status = "VALID"
+    // $customerUser : CustomerUser(status == "VALID", locked == false)  // ( locked == false or !$customerUser.isLocked() )  Match the CustomerUser with status = 'VALID', and not locked (i.e locked = false)
+    // $customerUser : CustomerUser(status == "VALID", (locked == false || locked == true)) // status = 'VALID' and locked either true or false
+    // $customerUser : CustomerUser((status == "VALID" || status == "ACTION_REQUIRED"), locked == false) // status = 'VALID' or ACTION_REQUIRED and locked false
+    // $customerUser : CustomerUser(locked == false, createdAt == null) //  locked = false and createdAt date is  null; select * from customer_user where locked = false and created_at is null;
+
+    /*
+    * Assigning createdAt from CustomerUser to a variable $createdAt ($ is just a convention) & LocalDate.now() is assigned to $nowDate variable
+    * $nowDate is bound to each customer user in the working memory,
+    * Similarly, $createdAt is bound to each createdAt of customer user in the working memory,
+    */
+     //$customerUser : CustomerUser(locked == false, createdAt != null, $createdAt : createdAt, $nowDate: LocalDate.now()) // createdAt date greater than LocaleDate.now()
+     //$customerUser : CustomerUser(locked == false, this.createdAt != null,  $createdAt : createdAt, $nowDate: LocalDate.now(), createdAt.isAfter($nowDate))
+
+    // Using function from the imported file instead of writing direct logic here.
+    $customerUser : CustomerUser(locked == false, this.createdAt != null, $nowDate: LocalDate.now(), $createdAt : createdAt, compareDate(createdAt, $nowDate))
+
+then
+    // System.out.println("Status before >>> " + $customerUser.getStatus() + " for user " + $customerUser.getUsername());
+    //do whatever the logic is required, modify object etc.
+    // $customerUser.setStatus("VALID"); // This doesn't work as it doesn't instruct rule engine to update the value so it won't get reflected in another rule.
+    // This works, since it notifies rules engine that these customer users have changed.
+    modify($customerUser) {
+          setStatus("VALID");
+    }
+    System.out.println("created date is after now date ?? >>> " + $createdAt.isAfter($nowDate)); // Compare two dates  https://docs.oracle.com/javase/8/docs/api/java/time/LocalDate.html#isEqual-java.time.chrono.ChronoLocalDate-
+    // myGlobalShoppingList = new ArrayList<String>(); // create an object of the array list
+    // myGlobalShoppingList.add("Jacket"); // Add item to the global variable
+    // System.out.println("About to buy : " + myGlobalShoppingList); // accessing global variable, myGlobalShoppingList.get(0)
+end
+
+/*
+ * This is another rule in the same drl file
+ */
+rule "check the status of the customer user"
+salience 5
+dialect "mvel"
+agenda-group "TEST-101"
+/*
+ * Applicable to rules within the agenda-group, TEST-101 in this case.
+ * Automaticall fires the rules if they're in the same agenda group, rule "Print the claim" in our case
+ */
+auto-focus true
+
+//date-expires getFormattedDate() // can we make date dynamic instead of static here ?
+date-expires "27-DEC-2025" // same effect as below, date format is d-MMM-yyy
+// enabled false // don't execute this rule
+
+when
+     $tc : TestClaim( testId == 300, logger("INFO"), getFormattedDate())
+     // $tc1 : TestClaim(logger("inj"))  // Overrides the above, so will be evaluated based on this line's result in the then part (RHS)
+then
+    System.out.println("Check the claim >>> " + $tc.claimName + " Claimed At >>> " + $tc.claimedDate);
+end
+
+
+/**
+ * Another simple rule with same agenda-group
+ * Rules with same agenda group are grouped together.
+ * Same agenda group but with higher salience.
+ */
+rule "Print the claim"
+dialect "mvel"
+agenda-group "TEST-101"
+when
+        $claim: TestClaim( testId == 300 )
+then
+        System.out.println("Claim name : " + $claim.claimName + " found.");
+end
+
+
+/**
+ * REF : https://access.redhat.com/documentation/th-th/red_hat_decision_manager/7.5/html/designing_a_decision_service_using_drl_rules/drl-rules-con_drl-rules
+ */
+rule "Greet me ::: first"
+dialect "mvel"
+agenda-group "GREET-101"
+salience 100
+activation-group "GREET-TEST" // In activation groups, only one rule can be activated
+auto-focus true
+when
+        CustomerUser()
+then
+        System.out.println("Gret 101:: first");
+end
+
+
+rule "Greet me  ::: second"
+dialect "mvel"
+agenda-group "GREET-101"
+activation-group "GREET-TEST" // In activation groups, only one rule can be activated
+salience 150 // higher salience in the same agenda group will be executed first.
+//auto-focus true
+
+when
+      // all the customer user
+      // Usage of accumulate function (with aggregate functions)
+      $userList : List() from accumulate (
+        $customerUser : CustomerUser($customerUser.userId > 400),
+        collectList( $customerUser )
+        )
+then
+     System.out.println("--- \n <<< User's list ::: " + $userList.size() " \n");
+     for(CustomerUser user : $userList) {
+         System.out.println( "User with username " + user.username + " and user Id " + user.userId + " found.");
+        }
+end
+
+/**
+ * Syntax of accumulate
+  $result : ResultType() from accumulate (
+        FactType( conditions ),
+        AggregateFunction( expression)
+    )
+ */
+
+function boolean getFormattedDate() {
+    LocalDateTime myDateObj = LocalDateTime.now();
+    DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
+    String formattedDate = myDateObj.format(myFormatObj);
+    System.out.println("After Formatting Date, date is : " + formattedDate);
+    return true;
+ }

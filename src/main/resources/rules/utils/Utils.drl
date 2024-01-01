@@ -1,0 +1,11 @@
+// Contains all the utilities things related to the rules
+package rules;
+
+/**
+ * Put this in the same package as other drools file where it would be used (so that it can be used without any other configurations except loading to the production memory)
+ */
+
+function boolean logger(String logType) {
+    System.out.println("LogType is :: " + logType);
+    return logType.length() >= 4; // WARN, INFO, DEBUG, ERROR
+}

@@ -130,7 +130,7 @@ then
      System.out.println("--- \n <<< User's list ::: " + $userList.size() " \n");
      for(CustomerUser user : $userList) {
          System.out.println( "User with username " + user.username + " and user Id " + user.userId + " found.");
-        }
+     }
 end
 
 /**

@@ -12,8 +12,13 @@ when
     // filter incurable diseases only
     $inCurableDisease : Disease( this.isIncurable(), statusEnum == StatusEnum.SEVERE )
     // $curableDisease : Disease( this.isIncurable() == false )
+    $totalNumberOfDiseases : Number() from accumulate(
+            $diseases : Disease( statusEnum == StatusEnum.SEVERE ),
+            count( $diseases )
+        )
 then
     // Java Code
      System.out.println("Disease " + $inCurableDisease.name + " is found in a list of incurable diseases.");
-    // System.out.println("Disease " + $curableDisease.name + " is found in a list of curable diseases.\n");
+     // System.out.println("Disease " + $curableDisease.name + " is found in a list of curable diseases.\n");
+     System.out.println("Total Number of diseases >>> " + $totalNumberOfDiseases);
 end

@@ -11,13 +11,15 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class DroolsConfig {
-    private static final String drlFile_01 = "rules/CUSTOMER_USER_RULES.drl";
-    private static final String drlFile_02 = "rules/DEMO_TEST.drl";
-    private static final String drlFile_03 = "rules/utils/Utils.drl";
-    private static final String drlFile_04 = "rules/DISEASES_RULE.drl";
-    private static final String excelFile_05 = "rules/files/diseases.xls";
+    private static final String drlFile_01 = "rules/PATIENT_RULES.drl";
     private static final  KieServices kieServices = KieServices.Factory.get();
 
+    /**
+     * The KieBase is a repository of all the application's knowledge definitions.
+     * It will contain rules, processes, functions, and type models.
+     * The KieBase itself does not contain data; instead, sessions are created from the KieBase into which data can be inserted and from which process instances may be started.
+     * The KieBase can be obtained from the KieContainer containing the KieModule where the KieBase has been defined.
+     */
     @Bean
     public KieContainer kieContainer() {
 
@@ -26,10 +28,6 @@ public class DroolsConfig {
          * Adding multiple rules to the working memory so that we can execute all of them. Rules must be registered.
          */
         kieFileSystem.write(ResourceFactory.newClassPathResource(drlFile_01));
-        kieFileSystem.write(ResourceFactory.newClassPathResource(drlFile_02));
-        kieFileSystem.write(ResourceFactory.newClassPathResource(drlFile_03));
-        kieFileSystem.write(ResourceFactory.newClassPathResource(drlFile_04));
-        kieFileSystem.write(ResourceFactory.newClassPathResource(excelFile_05));
 
         KieBuilder kieBuilder = kieServices.newKieBuilder(kieFileSystem);
         kieBuilder.buildAll();

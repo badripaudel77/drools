@@ -1,6 +1,6 @@
 package com.app.tracker.api;
 
-import com.app.tracker.services.CustomerUserService;
+import com.app.tracker.services.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,18 +14,18 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("")
-public class CustomerUserResource {
+public class PatientResource {
     @Autowired
-    CustomerUserService customerUserService;
+    PatientService patientService;
 
     @GetMapping
     public ResponseEntity<?> fireAllRules() {
         System.out.println("<<< Firing rules >>>");
 
-        customerUserService.fireCustomerUserRules();
+        patientService.firePatientServiceRules();
 
         return ResponseEntity.ok(
-                Map.of("actionMessage", "Customer User related drools rules were fired.")
+                Map.of("actionMessage", "Patients related drools rules were fired.")
         );
     }
 }

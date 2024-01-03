@@ -1,0 +1,16 @@
+package rules;
+
+import com.app.tracker.models.Patient;
+
+
+rule "Speak about the diseases"
+dialect "mvel"
+salience 100
+
+when
+    $patientFromNepal : Patient( this.patientAddress.country == "Nepal")
+
+then
+    // Java Code
+     System.out.println("Patient from Nepal with name " + $patientFromNepal.patientName);
+end

@@ -22,8 +22,7 @@ public class TrackerApplication {
 
     public static void main(String[] args) {
         ConfigurableApplicationContext applicationContext = SpringApplication.run(TrackerApplication.class, args);
-        logger.info(">>> TrackerApplication is up and running on >>> " + LocalDate.now());
-        logger.info("List of available beans : " + Arrays.stream(applicationContext.getBeanDefinitionNames()).collect(Collectors.toList()));
+        logger.info(">>> TrackerApplication is up and running at >>> " + System.currentTimeMillis());
     }
 
 

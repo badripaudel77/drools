@@ -7,10 +7,31 @@ rule "Speak about the diseases"
 dialect "mvel"
 salience 100
 
-when
-    $patientFromNepal : Patient( this.patientAddress.country == "Nepal")
+/**
+ *     $patient1 : Patient( this.patientAddress.country == "Nepal")
+ *     $patient2 : Patient( this.patientAddress.country == "India")
+ *
+ *     Writing => $patient1 : Patient( this.patientAddress.country == "Nepal" || this.patientAddress.country == "India") is better since for $patient1, $patient2 is also scanned (i.e then part is executed).
+ *     (write code and see the sout logs)
+ */
+  when
+     /*
+      * Avoid this if possible
+      *     $patient1 : Patient( this.patientAddress.country == "Nepal")
+      *     $patient2 : Patient( this.patientAddress.country == "India")
+      *
+      * Instead write :
+      *  $patient1 : Patient( this.patientAddress.country == "Nepal" || this.patientAddress.country == "India")
+      */
+
+       $patient1 : Patient( this.patientAddress.country == "Nepal")
+       $patient2 : Patient( this.patientAddress.country == "India")
+
+      // $patient : Patient( this.patientAddress.country == "Nepal" || this.patientAddress.country == "India")
 
 then
-    // Java Code
-     System.out.println("Patient from Nepal with name " + $patientFromNepal.patientName);
+
+      System.out.println("Patient from " + $patient1.patientAddress.country + " with name " + $patient1.patientName);
+      System.out.println("Patient from " + $patient2.patientAddress.country + " with name " + $patient2.patientName);
+//     System.out.println("Patient from " + $patient.patientAddress.country + " with name " + $patient.patientName);
 end

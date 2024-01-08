@@ -133,7 +133,9 @@ when
     exists(Patient()) // Must check it to avoid fail case where is nothing in the memory. Ensure there is at least a Patient fact in the session.
     // Ensure for all Patient in the memory, they have address as not null i.e must have an address.
     forall(
-            Patient(this.patientAddress != null) // if this satisfies for all the Patient, then will be evaluated.
+            // For all Patient(), it must satisfy the Patient(this.patientAddress == null) condition.
+            Patient() // select all the Patient first
+            Patient(this.patientAddress == null) // if this satisfies for all the Patient, then will be evaluated.
         )
 then
     System.out.println("Yes all patients have address.");

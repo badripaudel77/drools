@@ -21,7 +21,8 @@ public class PatientUtil {
                new Patient(21, "Hari", new Address(11, "KTM Road", 1100, "Nepal")),
                new Patient(31, "Ram", new Address(22, "Unnati Marga", 2200, "Nepal")),
                new Patient(41, "Jadeja", new Address(33, "Head Road", 3300, "India")),
-               new Patient(51, "Hathy", new Address(56, "The Hybrid Road", 5600, "India"))
+               new Patient(51, "Hathy", new Address(56, "The Hybrid Road", 5600, "India")),
+               new Patient(61, "John", new Address(66, "NA", 6600, "NA"))
         );
     }
 

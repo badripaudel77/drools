@@ -120,5 +120,21 @@ when
                      collectList($patient)
         )
 then
-       System.out.println(" Total, using collectList() " + $listOfPatients.size());
+       System.out.println(" Total, using collectList(), count = " + $listOfPatients.size());
+end
+
+/**
+ * Usage of forall keyword
+ */
+rule "Check if all the patients have at an Address"
+dialect "mvel"
+
+when
+    exists(Patient()) // Must check it to avoid fail case where is nothing in the memory. Ensure there is at least a Patient fact in the session.
+    // Ensure for all Patient in the memory, they have address as not null i.e must have an address.
+    forall(
+            Patient(this.patientAddress != null) // if this satisfies for all the Patient, then will be evaluated.
+        )
+then
+    System.out.println("Yes all patients have address.");
 end

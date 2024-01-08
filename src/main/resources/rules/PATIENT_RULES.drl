@@ -1,6 +1,7 @@
 package rules;
 
 import com.app.tracker.models.Patient;
+import com.app.tracker.models.Category;
 
 
 rule "Speak about the diseases"
@@ -33,5 +34,31 @@ then
 
       System.out.println("Patient from " + $patient1.patientAddress.country + " with name " + $patient1.patientName);
       System.out.println("Patient from " + $patient2.patientAddress.country + " with name " + $patient2.patientName);
-//     System.out.println("Patient from " + $patient.patientAddress.country + " with name " + $patient.patientName);
+
+      // These insert statements will trigger any rules that are dependent on Category fact.
+      insert(new Category(100, "NATIONAL", $patient1))
+      insert(new Category(100, "SAARC", $patient2))
+     // System.out.println("Patient from " + $patient.patientAddress.country + " with name " + $patient.patientName);
+end
+
+rule "Check if we have Patient from SAARC countries"
+dialect "mvel"
+
+no-loop // see comment below for why to use this
+// rule attribute are evaluated after condition so that they can use the values defined in condtion part like $is in this case.
+// Since enabled is evaulated after when, we'have access to the $p, $c
+//enabled ($c.categoryName == "SAARC")
+enabled ($isFromSAARC != null)
+when
+    $p : Patient(patientAddress.country.toLowerCase() == "INDIA".toLowerCase()) // for simplicity only India is checked
+    $c : Category(patient == $p, $isFromSAARC : categoryName == "SAARC")
+
+then
+    $c.setCategoryName("SAARC");
+    /**
+     * will trigger to re-evaluate this rule again and again as it is updated unless no-loop attribute is used.
+     * Solution : use no-loop attribute
+     */
+    update($c);
+    System.out.println("You'll get some discount >>> " + $p.patientName + " >> " + $c.categoryName);
 end

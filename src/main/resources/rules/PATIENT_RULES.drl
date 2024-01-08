@@ -2,6 +2,7 @@ package rules;
 
 import com.app.tracker.models.Patient;
 import com.app.tracker.models.Category;
+import java.util.List;
 
 
 rule "Speak about the diseases"
@@ -13,6 +14,7 @@ salience 100
  *     $patient2 : Patient( this.patientAddress.country == "India")
  *
  *     Writing => $patient1 : Patient( this.patientAddress.country == "Nepal" || this.patientAddress.country == "India") is better since for $patient1, $patient2 is also scanned (i.e then part is executed).
+ *     Still the best is to splitting it into two different rules so that they become atomic.
  *     (write code and see the sout logs)
  */
   when
@@ -61,4 +63,62 @@ then
      */
     update($c);
     System.out.println("You'll get some discount >>> " + $p.patientName + " >> " + $c.categoryName);
+end
+
+/**
+ * Grouping patients using collect keyword
+ * The "collect" keyword is used to find all the elements that match a specific condition
+ * and group them into a collection. Later on, this collection can be assigned to a
+ * variable or submitted to further conditions
+ */
+
+rule "Group Patients and Store them"
+dialect "mvel"
+
+when
+    // include size > 0 as a guard otherwise it would still fire and return empty list even if no elements are present.
+    $allPatients : List( size > 0) from collect(Patient())
+then
+    System.out.println("Total Patients (using simple collect() ) >>> " + $allPatients.size());
+end
+
+/**
+ * Use accumulate function to count the number of Patients
+ */
+
+rule "Use of Accumulate & aggregate functions"
+dialect "mvel"
+// enabled false;
+when
+        // Accumulate all the Patient meeting the match conditions and store other aggregate functions' results in variables
+        // Look, here we have omitted return type as we're storing results inside of the variables
+        // Otherwise, we could write as
+        /**
+         *    $res :  Number( intValue > 0) from accumulate ( conditons, aggregate_fucntion);
+         *    eg :
+         *    $tot : Number() from accumulate(
+         *                 Patient(patientId != 01, $pId: patientId),
+         *                 count($pId)
+         *         )
+         */
+         accumulate(
+                Patient(patientId != 01, $pId: patientId),
+                $sumOfIds : sum($pId),
+                $maxId : max($pId),
+                $minId : min($pId),
+                $totalPatients : count($pId)
+        )
+then
+    System.out.println("Sum of IDS >>> " + $sumOfIds + " Max ID >>> " + $maxId + " Min ID >>> " + $minId + " Total Patients >>> " + $totalPatients);
+end
+
+rule "Use of Accumulate & aggregate functions : collectList()"
+dialect "mvel"
+when
+        $listOfPatients : List( size > 3) from accumulate(
+            $patient : Patient(patientId != 01, $pId: patientId),
+                     collectList($patient)
+        )
+then
+       System.out.println(" Total, using collectList() " + $listOfPatients.size());
 end

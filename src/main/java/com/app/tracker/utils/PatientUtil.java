@@ -16,6 +16,7 @@ public class PatientUtil {
 
     public static List<Patient> getAllPatient() {
         return List.of(
+               new Patient(01, "Roe", new Address(00, "Dutch Road", 0000, "The Netherlands")),
                new Patient(11, "Shyam", new Address(11, "Swachha Marga", 1100, "Nepal")),
                new Patient(21, "Hari", new Address(11, "KTM Road", 1100, "Nepal")),
                new Patient(31, "Ram", new Address(22, "Unnati Marga", 2200, "Nepal")),

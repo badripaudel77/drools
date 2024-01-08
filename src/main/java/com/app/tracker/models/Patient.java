@@ -1,5 +1,7 @@
 package com.app.tracker.models;
 
+import org.kie.api.definition.type.PropertyReactive;
+
 public class Patient {
 
     private Integer patientId;

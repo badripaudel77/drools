@@ -4,6 +4,8 @@ import com.app.tracker.models.Patient;
 import com.app.tracker.models.Category;
 import java.util.List;
 
+import java.lang.Thread; // Just for testing purposes.
+
 global com.app.tracker.services.PatientService patientService;
 
 rule "Speak about the diseases"
@@ -34,7 +36,8 @@ salience 100
       // $patient : Patient( this.patientAddress.country == "Nepal" || this.patientAddress.country == "India")
 
 then
-
+      // WARN:: Just for testing purposes.
+      Thread.sleep(5000);
       System.out.println("Patient from " + $patient1.patientAddress.country + " with name " + $patient1.patientName);
       System.out.println("Patient from " + $patient2.patientAddress.country + " with name " + $patient2.patientName);
 

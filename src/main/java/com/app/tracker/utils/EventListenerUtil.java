@@ -6,12 +6,18 @@ import org.kie.api.runtime.KieSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 /**
  * Utility class related to listening events
  */
 public class EventListenerUtil {
 
     private static Logger logger = LoggerFactory.getLogger(EventListenerUtil.class);
+
+    private static long ruleStartTime;
+    private static long ruleEndTime;
 
     public static void attachDefaultAgendaEventListener(KieSession kieSession) {
         // Attach event listeners to kieSession and check the triggered events
@@ -21,13 +27,17 @@ public class EventListenerUtil {
             @Override
             public void beforeMatchFired(BeforeMatchFiredEvent beforeMatchFiredEvent) {
                 super.beforeMatchFired(beforeMatchFiredEvent);
+                ruleStartTime = System.currentTimeMillis();
                 logger.info("EventListenerUtil <<<>>> DefaultAgendaEventListener >>>  BeforeMatchFiredEvent ::: Rule Name " + beforeMatchFiredEvent.getMatch().getRule().getName() + " fired.");
             }
 
             @Override
             public void afterMatchFired(AfterMatchFiredEvent afterMatchFiredEvent) {
                 super.afterMatchFired(afterMatchFiredEvent);
-                logger.info("EventListenerUtil <<<>>> DefaultAgendaEventListener >>>  AfterMatchFiredEvent ::: Rule Name " + afterMatchFiredEvent.getMatch().getRule().getName() + " fired.");
+                ruleEndTime = System.currentTimeMillis();
+                logger.info("EventListenerUtil <<<>>> DefaultAgendaEventListener >>>  AfterMatchFiredEvent ::: Rule Name "
+                        + afterMatchFiredEvent.getMatch().getRule().getName() + " fired." + " and it took (in milli sec)" +
+                        (ruleStartTime - ruleEndTime));
             }
         });
     }

@@ -37,7 +37,7 @@ salience 100
 
 then
       // WARN:: Just for testing purposes.
-      Thread.sleep(5000);
+      Thread.sleep(1000);
       System.out.println("Patient from " + $patient1.patientAddress.country + " with name " + $patient1.patientName);
       System.out.println("Patient from " + $patient2.patientAddress.country + " with name " + $patient2.patientName);
 

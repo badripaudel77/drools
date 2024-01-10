@@ -4,6 +4,7 @@ import com.app.tracker.models.Patient;
 import com.app.tracker.models.Category;
 import java.util.List;
 
+global com.app.tracker.services.PatientService patientService;
 
 rule "Speak about the diseases"
 dialect "mvel"
@@ -27,7 +28,7 @@ salience 100
       *  $patient1 : Patient( this.patientAddress.country == "Nepal" || this.patientAddress.country == "India")
       */
 
-       $patient1 : Patient( this.patientAddress.country == "Nepal")
+       $patient1 : Patient( this!.patientAddress!.country == "Nepal") // ! = != (null safe)
        $patient2 : Patient( this.patientAddress.country == "India")
 
       // $patient : Patient( this.patientAddress.country == "Nepal" || this.patientAddress.country == "India")
@@ -120,7 +121,8 @@ when
                      collectList($patient)
         )
 then
-       System.out.println(" Total, using collectList(), count = " + $listOfPatients.size());
+        patientService.logTheMessage();
+        System.out.println(" Total, using collectList(), count = " + $listOfPatients.size());
 end
 
 /**

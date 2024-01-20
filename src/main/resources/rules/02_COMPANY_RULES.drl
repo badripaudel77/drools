@@ -1,0 +1,25 @@
+package rules;
+
+import com.app.tracker.models.Company;
+import com.app.tracker.models.CompanySize;
+import java.util.List;
+
+
+/**
+ *  $res :  Number( intValue > some value) from accumulate ( conditons, aggregate_fucntion);
+ */
+rule "Companies : Information about the organizations"
+dialect "mvel"
+
+when
+    exists(Company(size == CompanySize.EXTRA_LARGE))
+    $company : Company( size == CompanySize.EXTRA_LARGE)
+
+    $count : Number ( intValue > 1)
+        from accumulate (
+                $cmp: Company(size == CompanySize.EXTRA_LARGE, this != $company),
+                count($cmp)
+        )
+then
+    System.out.println("Company with given criteria ::: " + $company.name + " counter = " + $count);
+end

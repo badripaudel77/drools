@@ -45,3 +45,73 @@ eg, of accumulate (returns the list of customer users with userId greater than 4
       )
 ```
 
+- ### Alpha Node:
+    - Each individual constraint
+      a pattern has is represented in the PHREAK network as an Alpha Node.
+    - For eg: 
+      ```groovy
+           rule "Sample Rule 1"
+           when
+              $c: Customer(age > 30, category == Category.GOLD)
+           then
+           // ...
+           end
+      ```
+      - The graph looks like following :  ![img_1.png](img_1.png)
+  
+    - ##### Alpha Node sharing : 
+    ```groovy
+        rule "Sample Rule 1"
+       when
+        $c: Customer(age > 30, category == Category.GOLD)
+        then
+            channels["gold-customer-channel"].send($c);
+        end
+  
+        rule "Sample Rule 2"
+        when
+            $c: Customer(age > 30, category == Category.SILVER)
+        then
+            channels["silver-customer-channel"].send($c);
+        end
+    ```
+  
+     The graph looks like as : 
+      ![img_2.png](img_2.png)
+  
+- ### Beta Nodes : 
+  - When a rule is composed of more than one pattern, the Beta Node representing the join operation between each pair of
+    patterns is created.
+  -   ```groovy
+          rule "Sample Rule 1"
+          when
+            $p: Provider(rating > 50)
+            $pr: ProviderRequest()
+          then
+            channels["request-channel"].send($pr);
+          end
+      ```
+      - ![img_3.png](img_3.png)
+  - One more example which shows the evaluation of the constraint when one variable from one fact is used in another,
+    alpha-node will not be created for this and evaluation will happen at beta-node.
+    eg: 
+    ```groovy
+        rule "Sample Rule 1"
+        when
+            $p: Provider(rating > 50)
+            $pr: ProviderRequest(provider == $p)
+        then
+            channels["request-channel"].send($pr);
+        end
+    ```
+    Example graph would be as follows : 
+    ![img_4.png](img_4.png)
+    Here, $p is used in checking, however, $p is defined in another fact. 
+  - It would work the same even if we're doing as : 
+    ```groovy
+           $p: Provider($isRatingGreaterThan50 : rating > 50)
+            $pr: ProviderRequest(this.providersRating == $isRatingGreaterThan50)
+    ```
+    ```this.providersRating == $isRatingGreaterThan50``` would have been evaluated in the beta-node as well.
+  
+
